@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Интерактивные ловушки разума</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f7fafc;
+        }
+        .container-content {
+            min-height: 80vh;
+        }
+        .trap-card {
+            transition: all 0.3s ease-in-out;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08);
+        }
+        .trap-card:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1), 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+        .btn-action {
+            transition: background-color 0.3s ease-in-out, transform 0.2s ease-in-out;
+        }
+        .btn-action:hover {
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800">
+
+    <!-- Main Container -->
+    <div class="container mx-auto px-4 py-8 max-w-4xl">
+        <h1 class="text-4xl font-bold text-center text-orange-600 mb-8">Интерактивные ловушки разума</h1>
+        
+        <!-- Content Container -->
+        <div id="content-container" class="container-content bg-white p-6 md:p-10 rounded-2xl shadow-lg flex items-center justify-center">
+            <!-- Content will be dynamically inserted here -->
+        </div>
+    </div>
+
+    <script>
+        // Data for the mental traps
+        const trapsData = [
+            {
+                name: 'Ловушка планирования',
+                description: 'Вы тратите так много времени на детализацию, что это мешает начать действовать.',
+                cause: {
+                    name: 'Страх',
+                    description: 'Вероятно, это происходит из-за страха неудачи или желания избежать реальной работы.',
+                    aspects: ['Страх неудачи', 'Желание избежать реальной работы']
+                },
+                recommendation: 'Начните действовать, даже если план не идеален. Помните, что прогресс важнее безупречности.'
+            },
+            {
+                name: 'Ловушка обязательств',
+                description: 'Вы продолжаете вкладывать ресурсы в уже провальный проект, чтобы не признать ошибку.',
+                cause: {
+                    name: 'Страх',
+                    description: 'Возможно, это связано с боязнью потерь и нежеланием признать, что вы были неправы.',
+                    aspects: ['Боязнь потерь', 'Нежелание признать ошибку']
+                },
+                recommendation: 'Оценивайте проекты объективно, без учёта прошлых затрат. Учитесь вовремя отказываться от неработающих идей.'
+            },
+            {
+                name: 'Ловушка перфекционизма',
+                description: 'Вы откладываете задачи, потому что хотите сделать их безупречно, а страх ошибки парализует.',
+                cause: {
+                    name: 'Потребность в одобрении',
+                    description: 'Часто бывает, что это продиктовано страхом критики и убеждением, что ваша ценность зависит от безупречности.',
+                    aspects: ['Страх критики', 'Зависимость от мнения других']
+                },
+                recommendation: 'Примите, что «хорошо» — это уже отличный результат. Начинайте с чернового варианта и улучшайте его постепенно.'
+            },
+            {
+                name: 'Ловушка избегания',
+                description: 'Вы стараетесь уйти от ситуаций, которые могут вызвать дискомфорт, критику или страх.',
+                cause: {
+                    name: 'Страх',
+                    description: 'Возможно, это связано с боязнью конфронтации или нежеланием сталкиваться с негативными эмоциями.',
+                    aspects: ['Боязнь конфронтации', 'Нежелание сталкиваться с негативом']
+                },
+                recommendation: 'Делайте небольшие шаги в сторону того, чего вы боитесь. Осознайте, что дискомфорт — это часть роста.'
+            },
+            {
+                name: 'Ловушка контроля',
+                description: 'Вы пытаетесь контролировать каждую деталь своей жизни и жизнь других, что приводит к стрессу.',
+                cause: {
+                    name: 'Недостаток доверия',
+                    description: 'Вероятно, это происходит из-за недоверия к другим или страха перед неопределённостью.',
+                    aspects: ['Недоверие к другим', 'Страх перед неопределённостью']
+                },
+                recommendation: 'Отпустите контроль. Учитесь доверять другим и сосредоточьтесь на том, что вы действительно можете изменить.'
+            },
+            {
+                name: 'Ловушка ожиданий',
+                description: 'Вы живёте в плену своих или чужих ожиданий, что часто приводит к разочарованию.',
+                cause: {
+                    name: 'Потребность в одобрении',
+                    description: 'Часто бывает, что это связано с завышенными стандартами и неспособностью принять реальность такой, какая она есть.',
+                    aspects: ['Завышенные стандарты', 'Неспособность принять реальность']
+                },
+                recommendation: 'Снизьте ожидания. Относитесь к жизни как к приключению и цените то, что у вас есть сейчас.'
+            },
+            {
+                name: 'Ловушка активного действия',
+                description: 'Вы чувствуете потребность постоянно быть занятым, даже без ясной цели или понимания, что делать.',
+                cause: {
+                    name: 'Страх',
+                    description: 'Возможно, это происходит из-за страха бездействия или убеждения, что ваша ценность зависит от постоянной активности.',
+                    aspects: ['Страх бездействия', 'Зависимость самооценки от активности']
+                },
+                recommendation: 'Учитесь делать паузы и обдумывать. Не каждое действие ведет к результату.'
+            },
+            {
+                name: 'Ловушка прогнозирования',
+                description: 'Вы постоянно пытаетесь предсказать будущее и сильно переживаете, если прогнозы не сбываются.',
+                cause: {
+                    name: 'Страх',
+                    description: 'Вероятно, это продиктовано желанием обезопасить себя и стремлением к полному контролю над ситуацией.',
+                    aspects: ['Желание обезопасить себя', 'Стремление к полному контролю']
+                },
+                recommendation: 'Сосредоточьтесь на настоящем и примите, что будущее непредсказуемо. Это снизит уровень тревоги.'
+            },
+            {
+                name: 'Ловушка дедукции',
+                description: 'Вы делаете поспешные выводы, основываясь на ограниченной информации или догадках.',
+                cause: {
+                    name: 'Недостаток доверия',
+                    description: 'Часто бывает, что это связано с недостатком доверия к другим или склонностью додумывать за них.',
+                    aspects: ['Недостаток доверия к другим', 'Склонность додумывать']
+                },
+                recommendation: 'Прежде чем делать выводы, соберите больше информации и прямо спросите, если что-то неясно.'
+            },
+            {
+                name: 'Ловушка непогрешимости',
+                description: 'Вы не можете признать свои ошибки и постоянно ищете подтверждение своей правоты.',
+                cause: {
+                    name: 'Потребность в одобрении',
+                    description: 'Возможно, это связано с глубоким страхом показаться некомпетентным или слабым.',
+                    aspects: ['Страх показаться некомпетентным', 'Страх слабости']
+                },
+                recommendation: 'Помните, что признать свою неправоту — это признак силы, а не слабости. Учитесь на своих ошибках.'
+            },
+            {
+                name: 'Ловушка эмоций',
+                description: 'Вы позволяете своим чувствам брать верх над здравым смыслом, что мешает принимать рациональные решения.',
+                cause: {
+                    name: 'Страх',
+                    description: 'Вероятно, это результат подавления эмоций в прошлом или неспособности управлять ими.',
+                    aspects: ['Подавление эмоций', 'Неспособность управлять эмоциями']
+                },
+                recommendation: 'Научитесь анализировать свои чувства и отделять их от фактов, чтобы принимать более взвешенные решения.'
+            }
+        ];
+
+        const contentContainer = document.getElementById('content-container');
+
+        // Function to render the home screen with trap cards
+        function renderHome() {
+            contentContainer.innerHTML = `
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 w-full">
+                    ${trapsData.map((trap, index) => `
+                        <div class="trap-card bg-white rounded-xl p-6 text-center shadow-lg hover:shadow-xl transition-shadow transform hover:scale-105 duration-300 ease-in-out" 
+                             data-trap-name="${trap.name}">
+                            <h3 class="text-xl font-semibold text-gray-700">${trap.name}</h3>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+            // Add event listeners to the new cards
+            document.querySelectorAll('.trap-card').forEach(card => {
+                card.addEventListener('click', (e) => {
+                    const trapName = e.currentTarget.dataset.trapName;
+                    renderTrapDetails(trapName);
+                });
+            });
+        }
+
+        // Function to render the details for a specific trap
+        function renderTrapDetails(trapName) {
+            const trap = trapsData.find(t => t.name === trapName);
+            if (!trap) return;
+
+            contentContainer.innerHTML = `
+                <div class="w-full max-w-2xl text-center p-6 bg-gray-50 rounded-xl shadow-inner animate-fade-in-up">
+                    <h2 class="text-3xl font-bold mb-4 text-orange-600">${trap.name}</h2>
+                    <p class="text-lg text-gray-700 mb-8">${trap.description}</p>
+                    
+                    <div class="flex flex-col md:flex-row gap-4 justify-center">
+                        <button class="btn-action bg-orange-500 text-white font-semibold py-3 px-6 rounded-full shadow-md hover:bg-orange-600" 
+                                data-action="cause" data-trap-name="${trap.name}">
+                            Узнать первопричину
+                        </button>
+                        <button class="btn-action bg-gray-700 text-white font-semibold py-3 px-6 rounded-full shadow-md hover:bg-gray-800" 
+                                data-action="recommendation" data-trap-name="${trap.name}">
+                            Узнать, что делать
+                        </button>
+                        <button class="btn-action bg-gray-400 text-gray-800 font-semibold py-3 px-6 rounded-full shadow-md hover:bg-gray-500" 
+                                data-action="back">
+                            Вернуться назад
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            // Add event listeners for the action buttons
+            document.querySelectorAll('.btn-action').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    const action = e.currentTarget.dataset.action;
+                    if (action === 'back') {
+                        renderHome();
+                    } else if (action === 'cause') {
+                        renderCause(trapName);
+                    } else if (action === 'recommendation') {
+                        renderRecommendation(trapName);
+                    }
+                });
+            });
+        }
+
+        // Function to render the root cause details
+        function renderCause(trapName) {
+            const trap = trapsData.find(t => t.name === trapName);
+            if (!trap) return;
+
+            contentContainer.innerHTML = `
+                <div class="w-full max-w-2xl text-center p-6 bg-orange-50 rounded-xl shadow-inner animate-fade-in-up">
+                    <h2 class="text-3xl font-bold mb-4 text-orange-700">Первопричина: ${trap.cause.name}</h2>
+                    <p class="text-lg text-gray-700 mb-4">${trap.cause.description}</p>
+                    <p class="text-md text-gray-600 mb-8">Возможные аспекты:</p>
+                    <ul class="list-disc list-inside text-left text-gray-700 mx-auto max-w-xs mb-8">
+                        ${trap.cause.aspects.map(aspect => `<li>${aspect}</li>`).join('')}
+                    </ul>
+                    
+                    <button class="btn-action bg-gray-400 text-gray-800 font-semibold py-3 px-6 rounded-full shadow-md hover:bg-gray-500" 
+                            data-action="back-from-cause" data-trap-name="${trapName}">
+                        Вернуться назад
+                    </button>
+                </div>
+            `;
+
+            document.querySelector('[data-action="back-from-cause"]').addEventListener('click', () => {
+                renderTrapDetails(trapName);
+            });
+        }
+
+        // Function to render the recommendation
+        function renderRecommendation(trapName) {
+            const trap = trapsData.find(t => t.name === trapName);
+            if (!trap) return;
+
+            contentContainer.innerHTML = `
+                <div class="w-full max-w-2xl text-center p-6 bg-green-50 rounded-xl shadow-inner animate-fade-in-up">
+                    <h2 class="text-3xl font-bold mb-4 text-green-700">Что делать?</h2>
+                    <p class="text-lg text-gray-700 mb-8">${trap.recommendation}</p>
+                    
+                    <button class="btn-action bg-gray-400 text-gray-800 font-semibold py-3 px-6 rounded-full shadow-md hover:bg-gray-500" 
+                            data-action="back-from-rec" data-trap-name="${trapName}">
+                        Вернуться назад
+                    </button>
+                </div>
+            `;
+
+            document.querySelector('[data-action="back-from-rec"]').addEventListener('click', () => {
+                renderTrapDetails(trapName);
+            });
+        }
+
+        // Initial render on page load
+        document.addEventListener('DOMContentLoaded', renderHome);
+    </script>
+</body>
+</html>

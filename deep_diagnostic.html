@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Карта ловушек разума: Глубокая диагностика</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .test-container {
+            display: none;
+        }
+        .follow-up-test-container {
+            display: none;
+        }
+        .results-container {
+            display: none;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            height: 300px;
+            max-width: 400px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+
+    <!-- Стартовый экран -->
+    <div id="start-screen" class="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-orange-50 to-amber-100">
+        <div class="bg-white rounded-2xl shadow-xl p-10 w-full max-w-2xl text-center transition-transform duration-300 transform hover:scale-105">
+            <h1 class="text-4xl font-bold mb-4 text-orange-500">Глубокая диагностика</h1>
+            <p class="mb-6 text-lg text-gray-600">Этот тест позволит вам выявить не только явные, но и скрытые ментальные ловушки, которые мешают вашему развитию.</p>
+            <p class="mb-8 text-gray-500">Тест состоит из 66 вопросов. Ваши ответы будут анализироваться, чтобы определить "чемпионов" и зоны "отрицания".</p>
+            <button id="start-test-btn" class="bg-gray-800 text-white font-bold py-3 px-8 rounded-full shadow-lg hover:bg-gray-900 transition-all duration-300 transform hover:scale-105">Начать диагностику</button>
+        </div>
+    </div>
+
+    <!-- Основной тест -->
+    <div id="test-container" class="test-container min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-gray-100 to-gray-200">
+        <div class="bg-white rounded-2xl shadow-xl p-8 w-full max-w-3xl">
+            <div id="progress-bar" class="w-full h-3 bg-gray-200 rounded-full overflow-hidden mb-8">
+                <div id="progress-indicator" class="h-full bg-orange-500 transition-all duration-300"></div>
+            </div>
+            <p id="question-text" class="text-xl font-medium mb-8 text-center text-gray-700 leading-relaxed"></p>
+            <div class="grid grid-cols-5 gap-4">
+                <button data-score="-2" class="answer-btn bg-red-500 text-white font-semibold py-4 px-2 rounded-xl hover:bg-red-600 transition-colors duration-300 shadow-md text-sm md:text-base">Совершенно не согласен</button>
+                <button data-score="-1" class="answer-btn bg-red-400 text-white font-semibold py-4 px-2 rounded-xl hover:bg-red-500 transition-colors duration-300 shadow-md text-sm md:text-base">Не согласен</button>
+                <button data-score="0" class="answer-btn bg-gray-400 text-gray-800 font-semibold py-4 px-2 rounded-xl hover:bg-gray-500 transition-colors duration-300 shadow-md text-sm md:text-base">Нейтрально</button>
+                <button data-score="1" class="answer-btn bg-green-400 text-white font-semibold py-4 px-2 rounded-xl hover:bg-green-500 transition-colors duration-300 shadow-md text-sm md:text-base">Согласен</button>
+                <button data-score="2" class="answer-btn bg-green-500 text-white font-semibold py-4 px-2 rounded-xl hover:bg-green-600 transition-colors duration-300 shadow-md text-sm md:text-base">Совершенно согласен</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Уточняющий тест -->
+    <div id="follow-up-test-container" class="follow-up-test-container min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-gray-100 to-gray-200">
+        <div class="bg-white rounded-2xl shadow-xl p-8 w-full max-w-3xl">
+            <h2 class="text-3xl font-bold mb-4 text-center text-orange-500">Уточняющие вопросы</h2>
+            <div id="follow-up-progress-bar" class="w-full h-3 bg-gray-200 rounded-full overflow-hidden mb-8">
+                <div id="follow-up-progress-indicator" class="h-full bg-orange-500 transition-all duration-300"></div>
+            </div>
+            <p id="follow-up-question-text" class="text-xl font-medium mb-8 text-center text-gray-700 leading-relaxed"></p>
+            <div class="grid grid-cols-3 gap-4">
+                <button data-score="-1" class="follow-up-btn bg-red-400 text-white font-semibold py-4 px-2 rounded-xl hover:bg-red-500 transition-colors duration-300 shadow-md text-sm md:text-base">Не согласен</button>
+                <button data-score="0" class="follow-up-btn bg-gray-400 text-gray-800 font-semibold py-4 px-2 rounded-xl hover:bg-gray-500 transition-colors duration-300 shadow-md text-sm md:text-base">Нейтрально</button>
+                <button data-score="1" class="follow-up-btn bg-green-400 text-white font-semibold py-4 px-2 rounded-xl hover:bg-green-500 transition-colors duration-300 shadow-md text-sm md:text-base">Согласен</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Экран с результатами -->
+    <div id="results-container" class="results-container p-6 md:p-12 bg-gray-100 min-h-screen">
+        <div class="bg-white rounded-2xl shadow-xl p-8 w-full max-w-5xl mx-auto">
+            <h2 class="text-3xl font-bold mb-4 text-center text-orange-500">Ваша Карта Разума</h2>
+            <p class="text-center text-gray-600 mb-8">Ниже представлена ваша персональная карта. Красные ветви — это ловушки-«чемпионы», которые активно влияют на вас. Желтые ветви — зоны «отрицания», которые требуют особого внимания.</p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+                <!-- Диаграмма для чемпионов -->
+                <div>
+                    <h3 class="text-xl font-semibold mb-4 text-center text-red-600">Главные ловушки-«Чемпионы»</h3>
+                    <div class="chart-container rounded-lg shadow-inner bg-gray-50 p-4">
+                        <canvas id="champions-chart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Диаграмма для зон отрицания -->
+                <div>
+                    <h3 class="text-xl font-semibold mb-4 text-center text-yellow-600">Зоны «Отрицания»</h3>
+                    <div class="chart-container rounded-lg shadow-inner bg-gray-50 p-4">
+                        <canvas id="denial-chart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Карточка основной причины (УПРОЩЕННАЯ ВЕРСИЯ) -->
+            <div id="main-cause-card" class="bg-white text-gray-800 rounded-2xl p-6 text-center shadow-lg hidden">
+                <h3 class="text-2xl font-bold mb-2">Основная первопричина: <span id="main-cause-name"></span></h3>
+                <p id="main-cause-aspects" class="text-base font-light mb-2"></p>
+                <p id="main-cause-desc" class="text-sm font-light"></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const __app_id = 'default_app_id';
+        const __firebase_config = '{}';
+        const __initial_auth_token = null;
+
+        const views = {
+            start: document.getElementById('start-screen'),
+            test: document.getElementById('test-container'),
+            followUpTest: document.getElementById('follow-up-test-container'),
+            results: document.getElementById('results-container')
+        };
+
+        const startTestBtn = document.getElementById('start-test-btn');
+        const questionText = document.getElementById('question-text');
+        const answerButtons = document.querySelectorAll('.answer-btn');
+        const progressBar = document.getElementById('progress-indicator');
+        const followUpQuestionText = document.getElementById('follow-up-question-text');
+        const followUpButtons = document.querySelectorAll('.follow-up-btn');
+        const followUpProgressBar = document.getElementById('follow-up-progress-indicator');
+        const championsChartCanvas = document.getElementById('champions-chart');
+        const denialChartCanvas = document.getElementById('denial-chart');
+        const mainCauseCard = document.getElementById('main-cause-card');
+        const mainCauseName = document.getElementById('main-cause-name');
+        const mainCauseAspects = document.getElementById('main-cause-aspects');
+        const mainCauseDesc = document.getElementById('main-cause-desc');
+
+        let currentQuestionIndex = 0;
+        let scores = {};
+        let mainRootCauseName = '';
+        let followUpQuestions = [];
+        let currentFollowUpIndex = 0;
+        let followUpScores = {};
+
+        const mentalTraps = [
+            { name: 'Ловушка планирования', type: 'Положительное', rootCause: 'Страх' },
+            { name: 'Ловушка планирования', type: 'Отрицательное', rootCause: 'Страх' },
+            { name: 'Ловушка планирования', type: 'Положительное', rootCause: 'Страх' },
+            { name: 'Ловушка планирования', type: 'Отрицательное', rootCause: 'Страх' },
+            { name: 'Ловушка планирования', type: 'Положительное', rootCause: 'Страх' },
+            { name: 'Ловушка планирования', type: 'Отрицательное', rootCause: 'Страх' },
+            { name: 'Ловушка обязательств', type: 'Положительное', rootCause: 'Страх' },
+            { name: 'Ловушка обязательств', type: 'Отрицательное', rootCause: 'Страх' },
+            { name: 'Ловушка обязательств', type: 'Положительное', rootCause: 'Страх' },
+            { name: 'Ловушка обязательств', type: 'Отрицательное', rootCause: 'Страх' },
+            { name: 'Ловушка обязательств', type: 'Положительное', rootCause: 'Страх' },
+            { name: 'Ловушка обязательств', type: 'Отрицательное', rootCause: 'Страх' },
+            { name: 'Ловушка перфекционизма', type: 'Положительное', rootCause: 'Потребность в одобрении' },
+            { name: 'Ловушка перфекционизма', type: 'Отрицательное', rootCause: 'Потребность в одобрении' },
+            { name: 'Ловушка перфекционизма', type: 'Положительное', rootCause: 'Потребность в одобрении' },
+            { name: 'Ловушка перфекционизма', type: 'Отрицательное', rootCause: 'Потребность в одобрении' },
+            { name: 'Ловушка перфекционизма', type: 'Положительное', rootCause: 'Потребность в одобрении' },
+            { name: 'Ловушка перфекционизма', type: 'Отрицательное', rootCause: 'Потребность в одобрении' },
+            { name: 'Ловушка избегания', type: 'Положительное', rootCause: 'Страх' },
+            { name: 'Ловушка избегания', type: 'Отрицательное', rootCause: 'Страх' },
+            { name: 'Ловушка избегания', type: 'Положительное', rootCause: 'Страх' },
+            { name: 'Ловушка избегания', type: 'Отрицательное', rootCause: 'Страх' },
+            { name: 'Ловушка избегания', type: 'Положительное', rootCause: 'Страх' },
+            { name: 'Ловушка избегания', type: 'Отрицательное', rootCause: 'Страх' },
+            { name: 'Ловушка контроля', type: 'Положительное', rootCause: 'Недостаток доверия' },
+            { name: 'Ловушка контроля', type: 'Отрицательное', rootCause: 'Недостаток доверия' },
+            { name: 'Ловушка контроля', type: 'Положительное', rootCause: 'Недостаток доверия' },
+            { name: 'Ловушка контроля', type: 'Отрицательное', rootCause: 'Недостаток доверия' },
+            { name: 'Ловушка контроля', type: 'Положительное', rootCause: 'Недостаток доверия' },
+            { name: 'Ловушка контроля', type: 'Отрицательное', rootCause: 'Недостаток доверия' },
+            { name: 'Ловушка ожиданий', type: 'Положительное', rootCause: 'Потребность в одобрении' },
+            { name: 'Ловушка ожиданий', type: 'Отрицательное', rootCause: 'Потребность в одобрении' },
+            { name: 'Ловушка ожиданий', type: 'Положительное', rootCause: 'Потребность в одобрении' },
+            { name: 'Ловушка ожиданий', type: 'Отрицательное', rootCause: 'Потребность в одобрении' },
+            { name: 'Ловушка ожиданий', type: 'Положительное', rootCause: 'Потребность в одобрении' },
+            { name: 'Ловушка ожиданий', type: 'Отрицательное', rootCause: 'Потребность в одобрении' },
+            { name: 'Ловушка активного действия', type: 'Положительное', rootCause: 'Страх' },
+            { name: 'Ловушка активного действия', type: 'Отрицательное', rootCause: 'Страх' },
+            { name: 'Ловушка активного действия', type: 'Положительное', rootCause: 'Страх' },
+            { name: 'Ловушка активного действия', type: 'Отрицательное', rootCause: 'Страх' },
+            { name: 'Ловушка активного действия', type: 'Положительное', rootCause: 'Страх' },
+            { name: 'Ловушка активного действия', type: 'Отрицательное', rootCause: 'Страх' },
+            { name: 'Ловушка прогнозирования', type: 'Положительное', rootCause: 'Страх' },
+            { name: 'Ловушка прогнозирования', type: 'Отрицательное', rootCause: 'Страх' },
+            { name: 'Ловушка прогнозирования', type: 'Положительное', rootCause: 'Страх' },
+            { name: 'Ловушка прогнозирования', type: 'Отрицательное', rootCause: 'Страх' },
+            { name: 'Ловушка прогнозирования', type: 'Положительное', rootCause: 'Страх' },
+            { name: 'Ловушка прогнозирования', type: 'Отрицательное', rootCause: 'Страх' },
+            { name: 'Ловушка дедукции', type: 'Положительное', rootCause: 'Недостаток доверия' },
+            { name: 'Ловушка дедукции', type: 'Отрицательное', rootCause: 'Недостаток доверия' },
+            { name: 'Ловушка дедукции', type: 'Положительное', rootCause: 'Недостаток доверия' },
+            { name: 'Ловушка дедукции', type: 'Отрицательное', rootCause: 'Недостаток доверия' },
+            { name: 'Ловушка дедукции', type: 'Положительное', rootCause: 'Недостаток доверия' },
+            { name: 'Ловушка дедукции', type: 'Отрицательное', rootCause: 'Недостаток доверия' },
+            { name: 'Ловушка непогрешимости', type: 'Положительное', rootCause: 'Потребность в одобрении' },
+            { name: 'Ловушка непогрешимости', type: 'Отрицательное', rootCause: 'Потребность в одобрении' },
+            { name: 'Ловушка непогрешимости', type: 'Положительное', rootCause: 'Потребность в одобрении' },
+            { name: 'Ловушка непогрешимости', type: 'Отрицательное', rootCause: 'Потребность в одобрении' },
+            { name: 'Ловушка непогрешимости', type: 'Положительное', rootCause: 'Потребность в одобрении' },
+            { name: 'Ловушка непогрешимости', type: 'Отрицательное', rootCause: 'Потребность в одобрении' },
+            { name: 'Ловушка эмоций', type: 'Положительное', rootCause: 'Страх' },
+            { name: 'Ловушка эмоций', type: 'Отрицательное', rootCause: 'Страх' },
+            { name: 'Ловушка эмоций', type: 'Положительное', rootCause: 'Страх' },
+            { name: 'Ловушка эмоций', type: 'Отрицательное', rootCause: 'Страх' },
+            { name: 'Ловушка эмоций', type: 'Положительное', rootCause: 'Страх' },
+            { name: 'Ловушка эмоций', type: 'Отрицательное', rootCause: 'Страх' },
+        ];
+
+        const questions = [
+            "При планировании отпуска я предпочитаю иметь каждый час расписанным.",
+            "Я могу спонтанно отправиться в путешествие, не продумав все до мелочей.",
+            "Я часто трачу больше времени на выбор наряда, чем на само событие.",
+            "Я считаю, что важно просто начать заниматься новым хобби, а разбираться в деталях можно и потом.",
+            "Прежде чем что-то купить, я изучаю все возможные варианты, даже если покупка незначительная.",
+            "Я могу выбрать ресторан за 5 минут без долгих раздумий, просто основываясь на ощущениях.",
+            "Я продолжаю встречаться с человеком, даже если понимаю, что отношения не приносят мне радости.",
+            "Я легко отменяю бронь в ресторане, если планы изменились.",
+            "Я продолжаю смотреть фильм или читать книгу, которые мне не нравятся, чтобы не бросать их.",
+            "Я не боюсь признать, что зря потратил время на какое-то занятие.",
+            "Я продолжаю ходить на тренировки, которые мне не подходят, потому что купил абонемент.",
+            "Если я купил что-то, что мне не подошло, я легко могу это вернуть или отдать.",
+            "Я не могу отправить электронное письмо, пока не перечитаю его несколько раз.",
+            "Мне комфортно делиться результатами своей работы, даже если они не идеальны. ",
+            "Я часто отказываюсь от готовки, потому что боюсь, что блюдо не получится.",
+            "Я не боюсь выложить фото в соцсети, даже если оно не было отретушировано.",
+            "Я могу отложить встречу, если понимаю, что не смогу к ней подготовиться безупречно.",
+            "Я способен наслаждаться процессом, даже если результат не будет идеальным.",
+            "Я предпочитаю избегать разговоров, которые могут привести к конфликту.",
+            "Я легко иду на контакт с незнакомыми людьми в путешествиях.",
+            "Я стараюсь не обсуждать свои неудачи, чтобы избежать критики.",
+            "Я не боюсь выражать свое мнение, даже если оно отличается от мнения большинства.",
+            "Я откладываю сложные разговоры, даже если знаю, что это ухудшит ситуацию.",
+            "Я легко иду на новые знакомства и не боюсь быть отвергнутым.",
+            "Мне трудно доверять другим людям организацию наших совместных мероприятий.",
+            "Я могу позволить своим друзьям и близким принимать решения за меня.",
+            "Я всегда проверяю, всё ли сделано правильно, даже если это делал другой человек.",
+            "Я доверяю профессионалам и не вмешиваюсь в их работу.",
+            "Мне важно знать, где находится мой партнёр в течение дня.",
+            "Я считаю, что у людей есть право на личное пространство и независимость.",
+            "Я часто разочаровываюсь в людях, потому что они не оправдывают моих ожиданий.",
+            "Я легко принимаю людей такими, какие они есть, без лишних требований.",
+            "Я заранее представляю, как пройдет свидание, чтобы избежать неприятных сюрпризов.",
+            "Я получаю удовольствие от спонтанности и непредсказуемости.",
+            "Я часто жду от партнера, что он будет думать и чувствовать так же, как и я.",
+            "Я не думаю о том, что произойдёт в будущем.",
+            "Мне сложно просто сидеть и ничего не делать, даже на отдыхе.",
+            "Я могу провести целый день, наслаждаясь бездельем.",
+            "Я всегда должен быть занят каким-то проектом, чтобы чувствовать себя значимым.",
+            "Я легко могу замедлиться и подумать о жизни, не чувствуя себя виноватым.",
+            "Я постоянно переключаюсь с одной задачи на другую, чтобы не чувствовать себя застрявшим.",
+            "Я спокойно медитирую и не спешу куда-то.",
+            "Я всегда продумываю худший сценарий развития событий.",
+            "Я не волнуюсь о том, что может произойти.",
+            "Я постоянно переживаю, что не смогу подготовиться ко всем возможным проблемам.",
+            "Я просто иду по жизни, не думая о том, что может пойти не так.",
+            "Я часто представляю, как будут выглядеть мои отношения, и боюсь, что всё пойдёт не так.",
+            "Я легко принимаю перемены, даже если они не соответствуют моим ожиданиям.",
+            "Я часто додумываю за других людей, почему они так поступили.",
+            "Я всегда стараюсь поговорить с человеком напрямую, чтобы узнать его мотивы.",
+            "Если мой друг не отвечает на звонок, я думаю, что он на меня обиделся.",
+            "Я не спешу с выводами, пока не получу все факты.",
+            "Мне кажется, что мои друзья часто критикуют меня за моей спиной.",
+            "Я считаю, что большинство людей в целом доброжелательны.",
+            "Я не могу признать свою неправоту в споре, даже если знаю, что был неправ.",
+            "Я легко извиняюсь, когда понимаю, что ошибся.",
+            "Мне сложно принять критику, даже если она конструктивна.",
+            "Я готов учиться у других и принимать их опыт, даже если он противоречит моему.",
+            "Я чувствую, что должен быть идеальным во всем, чтобы заслужить уважение.",
+            "Я понимаю, что все совершают ошибки.",
+            "Я часто позволяю своим эмоциям влиять на важные решения.",
+            "Я обычно сохраняю спокойствие в стрессовых ситуациях.",
+            "Мое настроение может сильно меняться в течение дня.",
+            "Я не позволяю своим чувствам брать верх над здравым смыслом.",
+            "Я принимаю решения на основе сиюминутных эмоций.",
+            "Я считаю, что важно анализировать свои чувства и отделять их от фактов.",
+        ];
+
+        const followUpTraps = {
+            'Страх': [
+                { aspect: 'Страх неудачи', question: 'Я боюсь принимать решения, потому что опасаюсь провала.' },
+                { aspect: 'Страх неопределенности', question: 'Мне тревожно, когда ситуация выходит из-под контроля.' },
+                { aspect: 'Страх отверженности', question: 'Я боюсь показаться неинтересным или ненужным.' },
+                { aspect: 'Страх дискомфорта', question: 'Я предпочитаю избегать ситуаций, где мне некомфортно.' },
+                { aspect: 'Страх критики', question: 'Мнение других людей часто останавливает меня от действий.' }
+            ],
+            'Потребность в одобрении': [
+                { aspect: 'Зависимость от мнения', question: 'Мне важно, чтобы моя работа была высоко оценена окружающими.' },
+                { aspect: 'Сравнение', question: 'Я часто сравниваю себя с другими и переживаю, что хуже их.' },
+                { aspect: 'Чувствительность к критике', question: 'Я очень болезненно реагирую на критику.' },
+                { aspect: 'Неуверенность в себе', question: 'Я ищу похвалу и признание, чтобы чувствовать себя увереннее.' },
+                { aspect: 'Страх конфликта', question: 'Мне трудно говорить "нет", чтобы не обидеть человека.' }
+            ],
+            'Недостаток доверия': [
+                { aspect: 'Недоверие к себе', question: 'Я часто сомневаюсь в своей правоте, даже если уверен в фактах.' },
+                { aspect: 'Недоверие к другим', question: 'Мне кажется, что люди часто что-то скрывают.' },
+                { aspect: 'Жажда контроля', question: 'Я предпочитаю делать всё самостоятельно, чтобы быть уверенным в результате.' },
+                { aspect: 'Склонность к додумыванию', question: 'Я часто додумываю за других людей, почему они так поступили.' },
+                { aspect: 'Ожидание предательства', question: 'Мне трудно делегировать даже простые задачи.' }
+            ]
+        };
+
+        const fullData = {
+            traps: {
+                'Ловушка планирования': {
+                    desc: 'Вы тратите так много времени на детализацию, что это мешает начать действовать.',
+                    cause: 'Вероятно, это происходит из-за страха неудачи или желания избежать реальной работы.',
+                    rec: 'Начните действовать, даже если план не идеален. Помните, что прогресс важнее безупречности.',
+                    rootCause: 'Страх'
+                },
+                'Ловушка обязательств': {
+                    desc: 'Вы продолжаете вкладывать ресурсы в уже провальный проект, чтобы не признать ошибку.',
+                    cause: 'Возможно, это связано с боязнью потерь и нежеланием признать, что вы были неправы.',
+                    rec: 'Оценивайте проекты объективно, без учёта прошлых затрат. Учитесь вовремя отказываться от неработающих идей.',
+                    rootCause: 'Страх'
+                },
+                'Ловушка перфекционизма': {
+                    desc: 'Вы откладываете задачи, потому что хотите сделать их безупречно, а страх ошибки парализует.',
+                    cause: 'Часто бывает, что это продиктовано страхом критики и убеждением, что ваша ценность зависит от безупречности.',
+                    rec: 'Примите, что «хорошо» — это уже отличный результат. Начинайте с чернового варианта и улучшайте его постепенно.',
+                    rootCause: 'Потребность в одобрении'
+                },
+                'Ловушка избегания': {
+                    desc: 'Вы стараетесь уйти от ситуаций, которые могут вызвать дискомфорт, критику или страх.',
+                    cause: 'Возможно, это связано с боязнью конфронтации или нежеланием сталкиваться с негативными эмоциями.',
+                    rec: 'Делайте небольшие шаги в сторону того, чего вы боитесь. Осознайте, что дискомфорт — это часть роста.',
+                    rootCause: 'Страх'
+                },
+                'Ловушка контроля': {
+                    desc: 'Вы пытаетесь контролировать каждую деталь своей жизни и жизнь других, что приводит к стрессу.',
+                    cause: 'Вероятно, это происходит из-за недоверия к другим или страха перед неопределённостью.',
+                    rec: 'Отпустите контроль. Учитесь доверять другим и сосредоточьтесь на том, что вы действительно можете изменить.',
+                    rootCause: 'Недостаток доверия'
+                },
+                'Ловушка ожиданий': {
+                    desc: 'Вы живёте в плену своих или чужих ожиданий, что часто приводит к разочарованию.',
+                    cause: 'Часто бывает, что это связано с завышенными стандартами и неспособностью принять реальность такой, какая она есть.',
+                    rec: 'Снизьте ожидания. Относитесь к жизни как к приключению и цените то, что у вас есть сейчас.',
+                    rootCause: 'Потребность в одобрении'
+                },
+                'Ловушка активного действия': {
+                    desc: 'Вы чувствуете потребность постоянно быть занятым, даже без ясной цели или понимания, что делать.',
+                    cause: 'Возможно, это происходит из-за страха бездействия или убеждения, что ваша ценность зависит от постоянной активности.',
+                    rec: 'Учитесь делать паузы и обдумывать. Не каждое действие ведет к результату.',
+                    rootCause: 'Страх'
+                },
+                'Ловушка прогнозирования': {
+                    desc: 'Вы постоянно пытаетесь предсказать будущее и сильно переживаете, если прогнозы не сбываются.',
+                    cause: 'Вероятно, это продиктовано желанием обезопасить себя и стремлением к полному контролю над ситуацией.',
+                    rec: 'Сосредоточьтесь на настоящем и примите, что будущее непредсказуемо. Это снизит уровень тревоги.',
+                    rootCause: 'Страх'
+                },
+                'Ловушка дедукции': {
+                    desc: 'Вы делаете поспешные выводы, основываясь на ограниченной информации или догадках.',
+                    cause: 'Часто бывает, что это связано с недостатком доверия к другим или склонностью додумывать за них.',
+                    rec: 'Прежде чем делать выводы, соберите больше информации и прямо спросите, если что-то неясно.',
+                    rootCause: 'Недостаток доверия'
+                },
+                'Ловушка непогрешимости': {
+                    desc: 'Вы не можете признать свои ошибки и постоянно ищете подтверждение своей правоты.',
+                    cause: 'Возможно, это связано с глубоким страхом показаться некомпетентным или слабым.',
+                    rec: 'Помните, что признать свою неправоту — это признак силы, а не слабости. Учитесь на своих ошибках.',
+                    rootCause: 'Потребность в одобрении'
+                },
+                'Ловушка эмоций': {
+                    desc: 'Вы позволяете своим чувствам брать верх над здравым смыслом, что мешает принимать рациональные решения.',
+                    cause: 'Вероятно, это результат подавления эмоций в прошлом или неспособности управлять ими.',
+                    rec: 'Научитесь анализировать свои чувства и отделять их от фактов, чтобы принимать более взвешенные решения.',
+                    rootCause: 'Страх'
+                }
+            },
+            rootCauses: {
+                'Страх': 'Вероятно, самая частая и мощная из всех первопричин. Он проявляется как страх неудачи, критики, неопределённости или дискомфорта.',
+                'Потребность в одобрении': 'Это желание быть принятым и признанным окружающими. Такая потребность часто приводит к перфекционизму, когда вы пытаетесь достичь нереалистичных стандартов, чтобы доказать свою ценность и избежать критики.',
+                'Недостаток доверия': 'Может проявляться как недоверие к себе (из-за чего вы не можете принимать решения без долгих раздумий) или недоверие к другим (что заставляет вас пытаться контролировать каждую мелочь и додумывать за окружающих).'
+            }
+        };
+
+        function setView(viewName) {
+            for (let view in views) {
+                views[view].style.display = 'none';
+            }
+            views[viewName].style.display = 'flex';
+        }
+
+        function showQuestion() {
+            if (currentQuestionIndex < questions.length) {
+                questionText.textContent = questions[currentQuestionIndex];
+                const progress = (currentQuestionIndex / questions.length) * 100;
+                progressBar.style.width = `${progress}%`;
+            } else {
+                calculateMainCauseAndProceed();
+            }
+        }
+
+        function calculateMainCauseAndProceed() {
+            // Определяем ловушку-чемпиона (положительный результат)
+            let maxScore = -Infinity;
+            let championTrap = null;
+            for (const trapName in scores) {
+                if (scores[trapName] > maxScore) {
+                    maxScore = scores[trapName];
+                    championTrap = trapName;
+                }
+            }
+            
+            // Если есть чемпион, определяем его первопричину
+            if (championTrap) {
+                const trapData = mentalTraps.find(t => t.name === championTrap);
+                if (trapData) {
+                    mainRootCauseName = trapData.rootCause;
+                }
+            } else {
+                // Если нет "чемпионов", ищем наиболее выраженную первопричину
+                const rootCauseScores = {};
+                for (const trapName in scores) {
+                    const trapData = mentalTraps.find(t => t.name === trapName);
+                    if (trapData) {
+                        const rootCause = trapData.rootCause;
+                        if (!rootCauseScores[rootCause]) {
+                            rootCauseScores[rootCause] = 0;
+                        }
+                        rootCauseScores[rootCause] += scores[trapName];
+                    }
+                }
+                let maxRootCauseScore = -Infinity;
+                for (const cause in rootCauseScores) {
+                    if (rootCauseScores[cause] > maxRootCauseScore) {
+                        maxRootCauseScore = rootCauseScores[cause];
+                        mainRootCauseName = cause;
+                    }
+                }
+            }
+
+            // Если не удалось определить первопричину, устанавливаем по умолчанию
+            if (!mainRootCauseName) {
+                mainRootCauseName = 'Недостаток доверия';
+            }
+
+            startFollowUpTest();
+        }
+
+        function startFollowUpTest() {
+            followUpQuestions = followUpTraps[mainRootCauseName] || [];
+            currentFollowUpIndex = 0;
+
+            if (followUpQuestions.length > 0) {
+                setView('followUpTest');
+                showFollowUpQuestion();
+            } else {
+                renderFinalResults();
+            }
+        }
+
+        function showFollowUpQuestion() {
+            if (currentFollowUpIndex < followUpQuestions.length) {
+                const questionData = followUpQuestions[currentFollowUpIndex];
+                followUpQuestionText.textContent = questionData.question;
+                const progress = (currentFollowUpIndex / followUpQuestions.length) * 100;
+                followUpProgressBar.style.width = `${progress}%`;
+            } else {
+                renderFinalResults();
+            }
+        }
+
+        function renderCharts(champions, denials) {
+            const championsData = {
+                labels: champions.map(c => c.name),
+                datasets: [{
+                    data: champions.map(c => c.score),
+                    backgroundColor: ['#FCA5A5', '#F87171', '#EF4444', '#DC2626', '#B91C1C'],
+                    hoverOffset: 4
+                }]
+            };
+
+            const denialsData = {
+                labels: denials.map(d => d.name),
+                    datasets: [{
+                    data: denials.map(d => Math.abs(d.score)),
+                    backgroundColor: ['#BFDBFE', '#93C5FD', '#60A5FA', '#3B82F6', '#2563EB'],
+                    hoverOffset: 4
+                }]
+            };
+
+            const commonOptions = {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.label || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                if (context.parsed !== null) {
+                                    label += context.parsed;
+                                }
+                                return label;
+                            }
+                        }
+                    }
+                }
+            };
+
+            new Chart(championsChartCanvas, {
+                type: 'doughnut',
+                data: championsData,
+                options: commonOptions
+            });
+
+            new Chart(denialChartCanvas, {
+                type: 'doughnut',
+                data: denialsData,
+                options: commonOptions
+            });
+        }
+
+        function renderFinalResults() {
+            setView('results');
+            mainCauseCard.classList.remove('hidden');
+
+            const rootCauseData = fullData.rootCauses[mainRootCauseName] || 'Описание недоступно.';
+            mainCauseName.textContent = mainRootCauseName;
+            mainCauseDesc.textContent = rootCauseData;
+            
+            const followUpResults = Object.entries(followUpScores)
+                .sort(([, a], [, b]) => b - a)
+                .filter(([, score]) => score > 0);
+
+            if (followUpResults.length > 0) {
+                const aspects = followUpResults.map(([aspect]) => aspect).join(', ');
+                mainCauseAspects.textContent = `Особенно выражены аспекты: ${aspects}.`;
+            } else {
+                mainCauseAspects.textContent = 'Уточняющие аспекты не выявлены.';
+            }
+
+            const finalScores = {};
+            mentalTraps.forEach(trap => {
+                if (scores[trap.name] !== undefined) {
+                    if (finalScores[trap.name] === undefined) {
+                        finalScores[trap.name] = 0;
+                    }
+                    finalScores[trap.name] += scores[trap.name];
+                }
+            });
+
+            const champions = Object.entries(finalScores)
+                .filter(([, score]) => score > 0)
+                .sort(([, a], [, b]) => b - a)
+                .map(([name, score]) => ({ name, score }));
+
+            const denials = Object.entries(finalScores)
+                .filter(([, score]) => score < 0)
+                .sort(([, a], [, b]) => a - b)
+                .map(([name, score]) => ({ name, score }));
+
+            renderCharts(champions, denials);
+        }
+
+        startTestBtn.addEventListener('click', () => {
+            setView('test');
+            showQuestion();
+        });
+
+        answerButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const score = parseInt(button.dataset.score);
+                const trapName = mentalTraps[currentQuestionIndex].name;
+
+                if (scores[trapName] === undefined) {
+                    scores[trapName] = 0;
+                }
+                scores[trapName] += score;
+
+                currentQuestionIndex++;
+                showQuestion();
+            });
+        });
+
+        followUpButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const score = parseInt(button.dataset.score);
+                const aspect = followUpQuestions[currentFollowUpIndex].aspect;
+                followUpScores[aspect] = score;
+
+                currentFollowUpIndex++;
+                showFollowUpQuestion();
+            });
+        });
+
+        // Начальная настройка вида
+        setView('start');
+    </script>
+</body>
+</html>

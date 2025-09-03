@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Короткий тест "Ловушки разума"</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .page {
+            display: none;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        .page.active {
+            display: block;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen text-gray-800 p-4">
+    <div id="test-container" class="bg-white rounded-xl shadow-lg p-6 md:p-8 w-full max-w-2xl text-center">
+        <!-- Тест -->
+        <div id="question-page" class="page active">
+            <h2 class="text-3xl font-bold mb-4">Короткая диагностика</h2>
+            <p id="question-text" class="text-lg text-gray-700 mb-8"></p>
+            <div class="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4 justify-center">
+                <button onclick="handleAnswer(true)" class="bg-blue-600 text-white font-semibold py-3 px-8 rounded-full hover:bg-blue-700 transition-colors duration-300 shadow-md">
+                    Да
+                </button>
+                <button onclick="handleAnswer(false)" class="bg-gray-300 text-gray-800 font-semibold py-3 px-8 rounded-full hover:bg-gray-400 transition-colors duration-300 shadow-md">
+                    Нет
+                </button>
+            </div>
+            <div class="mt-8 text-sm text-gray-500">
+                <span id="question-counter"></span>
+            </div>
+        </div>
+
+        <!-- Результаты -->
+        <div id="results-page" class="page">
+            <h2 class="text-3xl font-bold mb-4">Ваши результаты</h2>
+            <div id="results-content" class="text-left space-y-4">
+                <p class="text-gray-700 mb-4">На основе ваших ответов, мы выявили следующие ловушки:</p>
+                <div id="trap-list" class="space-y-4"></div>
+                <p class="mt-8 text-sm text-gray-600 text-center">
+                    Это лишь первый шаг к самопознанию. Для более глубокого анализа мы рекомендуем пройти углубленную диагностику.
+                </p>
+            </div>
+            <div class="mt-8 text-center flex flex-col md:flex-row gap-4 justify-center">
+                <a href="./main.html" class="bg-gray-300 text-gray-800 font-semibold py-3 px-8 rounded-full hover:bg-gray-400 transition-colors duration-300 shadow-md">
+                    Вернуться
+                </a>
+                <a href="./deep_diagnostic.html" class="bg-blue-600 text-white font-semibold py-3 px-8 rounded-full hover:bg-blue-700 transition-colors duration-300 shadow-md">
+                    Копать глубже
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Имитация данных
+        const mentalTrapsData = [
+            { name: "Ловушка планирования", description: "Вы тратите так много времени на детализацию, что это мешает начать действовать.", recommendation: "Начните действовать, даже если план не идеален. Прогресс важнее безупречности." },
+            { name: "Ловушка обязательств", description: "Вы продолжаете вкладывать ресурсы в уже провальный проект, чтобы не признать ошибку.", recommendation: "Оценивайте проекты объективно. Учитесь вовремя отказываться от неработающих идей." },
+            { name: "Ловушка перфекционизма", description: "Вы откладываете задачи, потому что хотите сделать их безупречно, а страх ошибки парализует.", recommendation: "Примите, что «хорошо» — это уже отличный результат. Начинайте с чернового варианта." },
+            { name: "Ловушка избегания", description: "Вы стараетесь уйти от ситуаций, которые могут вызвать дискомфорт, критику или страх.", recommendation: "Делайте небольшие шаги в сторону того, чего вы боитесь. Осознайте, что дискомфорт — это часть роста." },
+            { name: "Ловушка контроля", description: "Вы пытаетесь контролировать каждую деталь своей жизни и жизнь других, что приводит к стрессу.", recommendation: "Отпустите контроль. Учитесь доверять другим и сосредоточьтесь на том, что вы действительно можете изменить." },
+            { name: "Ловушка ожиданий", description: "Вы живёте в плену своих или чужих ожиданий, что часто приводит к разочарованию.", recommendation: "Снизьте ожидания. Относитесь к жизни как к приключению и цените то, что у вас есть сейчас." },
+            { name: "Ловушка активного действия", description: "Вы чувствуете потребность постоянно быть занятым, даже без ясной цели или понимания, что делать.", recommendation: "Учитесь делать паузы и обдумывать. Не каждое действие ведет к результату." },
+            { name: "Ловушка прогнозирования", description: "Вы постоянно пытаетесь предсказать будущее и сильно переживаете, если прогнозы не сбываются.", recommendation: "Сосредоточьтесь на настоящем и примите, что будущее непредсказуемо. Это снизит уровень тревоги." },
+            { name: "Ловушка дедукции", description: "Вы делаете поспешные выводы, основываясь на ограниченной информации или догадках.", recommendation: "Прежде чем делать выводы, соберите больше информации и прямо спросите, если что-то неясно." },
+            { name: "Ловушка непогрешимости", description: "Вы не можете признать свои ошибки и постоянно ищете подтверждение своей правоты.", recommendation: "Помните, что признать свою неправоту — это признак силы, а не слабости." },
+            { name: "Ловушка эмоций", description: "Вы позволяете своим чувствам брать верх над здравым смыслом, что мешает принимать рациональные решения.", recommendation: "Научитесь анализировать свои чувства и отделять их от фактов, чтобы принимать более взвешенные решения." },
+        ];
+
+        const questions = [
+            { id: 0, text: "Я часто трачу много времени на детальное планирование, но не перехожу к действиям." },
+            { id: 1, text: "Мне сложно отказаться от проекта, в который я уже вложил много времени, даже если он не работает." },
+            { id: 2, text: "Я часто откладываю важные задачи, потому что боюсь, что не смогу сделать их идеально." },
+            { id: 3, text: "Я стараюсь избегать ситуаций, в которых могу столкнуться с критикой или конфликтом." },
+            { id: 4, text: "Мне трудно делегировать задачи другим, так как я уверен, что сам справлюсь лучше." },
+            { id: 5, text: "Я часто разочаровываюсь, когда реальность не соответствует моим высоким ожиданиям." },
+            { id: 6, text: "Я чувствую себя некомфортно, если не занят чем-то постоянно, даже если это не приносит результата." },
+            { id: 7, text: "Я постоянно думаю о том, что может пойти не так, и готовлюсь к худшему." },
+            { id: 8, text: "Я часто делаю выводы о людях или ситуациях, основываясь на очень ограниченной информации." },
+            { id: 9, text: "Мне очень трудно признать свои ошибки, даже если я знаю, что не прав." },
+            { id: 10, text: "Мои эмоции часто мешают мне принимать рациональные и взвешенные решения." },
+        ];
+
+        let currentQuestionIndex = 0;
+        const scores = new Array(questions.length).fill(0);
+
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active');
+            });
+            document.getElementById(pageId).classList.add('active');
+        }
+
+        function renderQuestion() {
+            if (currentQuestionIndex < questions.length) {
+                document.getElementById('question-text').textContent = questions[currentQuestionIndex].text;
+                document.getElementById('question-counter').textContent = `Вопрос ${currentQuestionIndex + 1} из ${questions.length}`;
+            } else {
+                showResults();
+            }
+        }
+
+        function handleAnswer(isYes) {
+            if (isYes) {
+                scores[currentQuestionIndex]++;
+            }
+            currentQuestionIndex++;
+            renderQuestion();
+        }
+
+        function showResults() {
+            showPage('results-page');
+            const sortedScores = scores
+                .map((score, index) => ({ score, name: mentalTrapsData[index].name, description: mentalTrapsData[index].description, recommendation: mentalTrapsData[index].recommendation }))
+                .sort((a, b) => b.score - a.score);
+
+            const topTraps = sortedScores.filter(trap => trap.score > 0).slice(0, 3);
+            const trapListContainer = document.getElementById('trap-list');
+            trapListContainer.innerHTML = '';
+
+            if (topTraps.length > 0) {
+                topTraps.forEach(trap => {
+                    const item = document.createElement('div');
+                    item.className = 'bg-gray-50 rounded-lg p-4 shadow-sm';
+                    item.innerHTML = `
+                        <h4 class="font-bold text-lg text-blue-600">${trap.name}</h4>
+                        <p class="text-sm mt-2">${trap.description}</p>
+                        <p class="text-sm mt-2 font-semibold">Рекомендация: ${trap.recommendation}</p>
+                    `;
+                    trapListContainer.appendChild(item);
+                });
+            } else {
+                trapListContainer.innerHTML = '<p class="text-gray-600">Похоже, у вас пока нет явных "ловушек разума". Продолжайте саморазвиваться!</p>';
+            }
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            renderQuestion();
+        });
+    </script>
+</body>
+</html>

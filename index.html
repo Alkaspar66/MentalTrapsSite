@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ловушки разума - main no test</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'primary-500': '#4a90e2',
+                        'primary-600': '#3a73b4',
+                        'accent-400': '#f59e0b',
+                        'accent-500': '#e87900',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        .page {
+            display: none;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        .page.active {
+            display: block;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .modal {
+            background-color: rgba(0, 0, 0, 0.5);
+            display: none;
+        }
+        .modal.open {
+            display: flex;
+        }
+        .button-group {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            margin-top: 16px;
+        }
+        .root-cause-card {
+            background-color: #f0f4f8;
+            border-left: 4px solid #4a90e2;
+            padding: 1rem;
+            border-radius: 0.5rem;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 font-sans text-gray-800 min-h-screen flex flex-col">
+    <!-- Navbar -->
+    <nav class="bg-white shadow-md sticky top-0 z-50">
+        <div class="container mx-auto p-4 flex flex-col md:flex-row items-center justify-between">
+            <h1 class="text-xl md:text-2xl font-bold text-gray-800 mb-2 md:mb-0">Ловушки разума</h1>
+            <div class="space-x-4 flex flex-wrap justify-center">
+                <button onclick="showPage('home')" class="text-gray-600 hover:text-primary-500 transition-colors duration-300 font-medium">Главная</button>
+                <button onclick="showPage('diagnosis')" class="text-gray-600 hover:text-primary-500 transition-colors duration-300 font-medium">Диагностика</button>
+                <button onclick="showPage('services')" class="text-gray-600 hover:text-primary-500 transition-colors duration-300 font-medium">Услуги</button>
+                <button onclick="showPage('blog')" class="text-gray-600 hover:text-primary-500 transition-colors duration-300 font-medium">Блог</button>
+                <button onclick="showPage('resources')" class="text-gray-600 hover:text-primary-500 transition-colors duration-300 font-medium">Ресурсы</button>
+                <button onclick="showPage('about')" class="text-gray-600 hover:text-primary-500 transition-colors duration-300 font-medium">О нас</button>
+				<button onclick="showPage('registration')" class="text-gray-600 hover:text-primary-500 transition-colors duration-300 font-medium">Войти/Регистрация</button>
+            </div>
+        </div>
+    </nav>
+	
+    <!-- Main Content -->
+    <main class="flex-grow container mx-auto p-4 md:p-8">
+
+        <!-- Home Page -->
+        <section id="home-page" class="page active">
+            <div class="bg-white rounded-xl shadow-lg p-6 md:p-12 text-center">
+                <h2 class="text-4xl md:text-5xl font-bold text-gray-800 mb-4">Ловушки разума - найти и обезвредить</h2>
+                <p class="text-gray-600 md:text-lg mb-8 max-w-2xl mx-auto">
+                    Пройдите диагностику, чтобы выявить скрытые "ловушки разума", которые мешают вам принимать правильные решения и достигать своих целей. Получите персональные рекомендации и инструменты для их преодоления.
+                </p>
+                <!-- Кнопка экспресс-диагностики -->
+                <button data-diagnose class="bg-primary-500 text-white font-semibold py-3 px-8 rounded-full hover:bg-primary-600 transition-colors duration-300 shadow-md inline-block">
+                    Экспресс-диагностика
+                </button>
+            </div>
+            
+            <div id="testimonials" class="mt-8">
+                <h3 class="text-3xl font-bold text-gray-800 text-center mb-6">Отзывы</h3>
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div class="bg-white rounded-xl shadow-md p-6">
+                        <p class="text-gray-700 mb-4">"Эта диагностика помогла мне осознать, что я трачу слишком много времени на планирование, вместо того чтобы действовать. Рекомендации были очень точными и полезными!"</p>
+                        <p class="font-semibold text-right text-gray-600">- Анна С.</p>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-md p-6">
+                        <p class="text-gray-700 mb-4">"Сайт помог мне понять, почему я постоянно откладываю дела на потом. Теперь я знаю, как бороться с перфекционизмом. Спасибо!"</p>
+                        <p class="font-semibold text-right text-gray-600">- Иван П.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+		
+	<!-- Registration Page -->
+	<section id="registration-page" class="page">
+        <div class="container">
+            <h2>Войти / Зарегистрироваться</h2>
+            <form id="auth-form-submit">
+                <div class="input-group">
+                    <label for="user-name">Имя</label>
+                    <input type="text" id="user-name" name="name">
+                </div>
+                <div class="input-group">
+                    <label for="user-email">Email</label>
+                    <input type="email" id="user-email" name="email">
+                </div>
+                <button type="submit" class="submit-button">Войти</button>
+            </form>
+        </div>
+    </section>
+
+    <script>
+        // Функция для переключения "страниц"
+        function showPage(pageId) {
+            const pages = document.querySelectorAll('.page');
+            pages.forEach(page => page.classList.remove('active'));
+            document.getElementById(pageId).classList.add('active');
+        }
+
+        // Получаем элементы формы
+        const authForm = document.getElementById('auth-form-submit');
+        const userNameInput = document.getElementById('user-name');
+        const userEmailInput = document.getElementById('user-email');
+
+        // Обработчик отправки формы
+        authForm.addEventListener('submit', function(event) {
+            event.preventDefault(); // Предотвращаем стандартную отправку формы
+            // Сохраняем данные в localStorage без каких-либо проверок
+            const userName = userNameInput.value.trim();
+            const userEmail = userEmailInput.value.trim();
+            localStorage.setItem('userName', userName);
+            localStorage.setItem('userEmail', userEmail);
+            
+            // Переключаемся на главную страницу
+            showPage('home');
+        });
+    </script>
+		<!-- End of Registration Page -->
+		
+        <!-- Diagnosis Page -->
+        <section id="diagnosis-page" class="page">
+            <div id="diagnosis-app" class="bg-white rounded-xl shadow-lg p-6 md:p-8 w-full max-w-2xl mx-auto text-center">
+                <!-- Welcome Screen -->
+                <div id="welcome-screen">
+                    <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mb-4">Автоматическая диагностика "Ловушки разума"</h2>
+                    <p class="text-gray-600 mb-6">Выберите формат анализа:</p>
+                    <!-- Две кнопки -->
+                    <div class="button-group">
+                        <button data-diagnose class="bg-primary-500 text-white font-semibold py-2 px-6 rounded-full hover:bg-primary-600 transition-colors duration-300 shadow-md">
+                            Экспресс-диагностика
+                        </button>
+                        <button onclick="window.location.href='./deep_diagnostic.html'" class="bg-accent-400 text-white font-semibold py-2 px-6 rounded-full hover:bg-accent-500 transition-colors duration-300 shadow-md">
+                            Глубокий анализ
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Services Page -->
+        <section id="services-page" class="page">
+            <div class="bg-white rounded-xl shadow-lg p-6 md:p-8">
+                <h2 class="text-3xl font-bold text-gray-800 mb-6 text-center">Наши услуги</h2>
+				
+				<div class="grid md:grid-cols-4 gap-6">
+                    <!-- Service Card: Card game -->
+                    <div class="bg-gray-50 rounded-lg p-6 text-center shadow-sm">
+                        <svg class="w-12 h-12 text-primary-500 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                        </svg>
+                        <h3 class="text-xl font-semibold mb-2">Обучающая игра</h3>
+                        <p class="text-gray-600 mb-4">Итеративная обучающая игра по типам ловушек, их описанию, причинам и рекомендациям по преодолению.</p>
+                        <button onclick="window.location.href='./card_game.html'" class="bg-accent-400 text-white font-semibold py-2 px-6 rounded-full hover:bg-accent-500 transition-colors duration-300">Играть и учиться</button>
+						<!--<button onclick="openRegistrationModal()" class="bg-accent-400 text-white font-semibold py-2 px-6 rounded-full hover:bg-accent-500 transition-colors duration-300">Играть и учиться</button> -->
+                    </div>
+                    <!-- Service Card: Live Consultation -->
+                    <div class="bg-gray-50 rounded-lg p-6 text-center shadow-sm">
+                        <svg class="w-12 h-12 text-primary-500 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                        </svg>
+                        <h3 class="text-xl font-semibold mb-2">Живая консультация</h3>
+                        <p class="text-gray-600 mb-4">Запишитесь на индивидуальную встречу по Zoom или WhatsApp, чтобы разобрать ваши "ловушки разума" лично.</p>
+                        <button onclick="openRegistrationModal()" class="bg-accent-400 text-white font-semibold py-2 px-6 rounded-full hover:bg-accent-500 transition-colors duration-300">Записаться</button>
+                    </div>
+                    <!-- Service Card: E-Book -->
+                    <div class="bg-gray-50 rounded-lg p-6 text-center shadow-sm">
+                        <svg class="w-12 h-12 text-primary-500 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.485 9.49 5 8 5c-3.314 0-6 2.686-6 6s2.686 6 6 6c1.49 0 2.832-.485 4-1.253m0 0C13.168 18.485 14.51 19 16 19c3.314 0 6-2.686 6-6s-2.686-6-6-6c-1.49 0-2.832.485-4 1.253"></path>
+                        </svg>
+                        <h3 class="text-xl font-semibold mb-2">Электронная книга</h3>
+                        <p class="text-gray-600 mb-4">Подробное руководство по всем "ловушкам разума" с практическими упражнениями и примерами из жизни.</p>
+                        <a href="#" class="bg-accent-400 text-white font-semibold py-2 px-6 rounded-full hover:bg-accent-500 transition-colors duration-300">Купить и скачать</a>
+                    </div>
+                    <!-- Service Card: Video Course -->
+                    <div class="bg-gray-50 rounded-lg p-6 text-center shadow-sm">
+                        <svg class="w-12 h-12 text-primary-500 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                        </svg>
+                        <h3 class="text-xl font-semibold mb-2">Видеокурс</h3>
+                        <p class="text-gray-600 mb-4">Пошаговая видео-программа с детальным разбором каждой ловушки и пошаговыми инструкциями.</p>
+                        <a href="#" class="bg-accent-400 text-white font-semibold py-2 px-6 rounded-full hover:bg-accent-500 transition-colors duration-300">Купить и скачать</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Blog Page -->
+        <section id="blog-page" class="page">
+            <div class="bg-white rounded-xl shadow-lg p-6 md:p-8">
+                <h2 class="text-3xl font-bold text-gray-800 mb-6 text-center">Блог</h2>
+                <div class="space-y-6">
+                    <!-- Blog Post 1 -->
+                    <div class="bg-gray-50 rounded-lg p-6 shadow-sm">
+                        <h3 class="text-xl font-semibold mb-2">Почему перфекционизм - это ловушка?</h3>
+                        <p class="text-gray-600 mb-4">Многие считают перфекционизм достоинством, но на самом деле он может стать серьёзным препятствием на пути к успеху...</p>
+                        <a href="#" class="text-primary-500 font-medium hover:underline">Читать далее &rarr;</a>
+                    </div>
+                    <!-- Blog Post 2 -->
+                    <div class="bg-gray-50 rounded-lg p-6 shadow-sm">
+                        <h3 class="text-xl font-semibold mb-2">Как перестать откладывать дела на потом?</h3>
+                        <p class="text-gray-600 mb-4">Прокрастинация — это не лень, а сложное психологическое явление. Разбираемся, как с ним справиться...</p>
+                        <a href="#" class="text-primary-500 font-medium hover:underline">Читать далее &rarr;</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Resources Page -->
+        <section id="resources-page" class="page">
+            <div class="bg-white rounded-xl shadow-lg p-6 md:p-8">
+                <h2 class="text-3xl font-bold text-gray-800 mb-6 text-center">Ресурсы</h2>
+                <!-- Recommended Literature -->
+                <div class="mb-8">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4">Рекомендуемая литература</h3>
+                    <ul class="list-disc list-inside space-y-2 text-gray-600">
+                        <li>«Ментальные ловушки» — Андре Кукла</li>
+                        <li>«Думай медленно... решай быстро» — Дэниел Канеман</li>
+                        <li>«Искусство ясно мыслить» — Рольф Добелли</li>
+                    </ul>
+                </div>
+                <!-- Social Media Links -->
+                <div>
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4">Подписывайтесь на нас</h3>
+                    <div class="flex space-x-6 justify-center">
+                        <a href="#" class="text-gray-600 hover:text-primary-500 transition-colors duration-300">
+                            <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.418 2.864 8.167 6.83 9.489.5.09.682-.218.682-.482 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.472-1.11-1.472-.908-.619.069-.606.069-.606 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.644.359-1.088.653-1.336-2.22-.251-4.555-1.116-4.555-4.951 0-1.093.39-1.988 1.029-2.681-.103-.252-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.029A9.564 9.564 0 0112 6.844c.85.004 1.701.113 2.504.331 1.909-1.29 2.747-1.029 2.747-1.029.546 1.379.202 2.398.099 2.651.64.693 1.028 1.587 1.028 2.68 0 3.841-2.339 4.69-4.566 4.943.359.309.678.92.678 1.855 0 1.336-.012 2.419-.012 2.747 0 .265.18.574.688.479C21.137 20.164 24 16.415 24 12.017 24 6.484 19.522 2 14 2c-1.802 0-3.535.497-5.008 1.405C7.436 3.013 7.02 3 6.574 3c-1.802 0-3.535.497-5.008 1.405z"/></svg>
+                        </a>
+                        <a href="#" class="text-gray-600 hover:text-primary-500 transition-colors duration-300">
+                            <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><path d="M12 2c5.523 0 10 4.477 10 10s-4.477 10-10 10S2 17.523 2 12 6.477 2 12 2zm0 3c-3.86 0-7 3.14-7 7s3.14 7 7 7 7-3.14 7-7-3.14-7-7-7zm0 1c3.314 0 6 2.686 6 6s-2.686 6-6 6-6-2.686-6-6 2.686-6 6-6zm0 2a4 4 0 100 8 4 4 0 000-8zM17.5 6a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z"/></svg>
+                        </a>
+                        <a href="#" class="text-gray-600 hover:text-primary-500 transition-colors duration-300">
+                            <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm3.325 15.632c-.105.008-.208.016-.313.016-1.57 0-2.85-1.28-2.85-2.85s1.28-2.85 2.85-2.85 2.85 1.28 2.85 2.85-1.28 2.85-2.85 2.85zM12 4.5c4.142 0 7.5 3.358 7.5 7.5S16.142 19.5 12 19.5 4.5 16.142 4.5 12 7.858 4.5 12 4.5zm0 1.5c-3.313 0-6 2.687-6 6s2.687 6 6 6 6-2.687 6-6-2.687-6-6-6zM15.325 10c-1.57 0-2.85 1.28-2.85 2.85s1.28 2.85 2.85 2.85 2.85-1.28 2.85-2.85-1.28-2.85-2.85-2.85z"/></svg>
+                        </a>
+                        <a href="#" class="text-gray-600 hover:text-primary-500 transition-colors duration-300">
+                            <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><path d="M21 4H3a2 2 0 00-2 2v12a2 2 0 002 2h18a2 2 0 002-2V6a2 2 0 00-2-2zM8 12V9.5L6.5 11 5 9.5V12H3v-2.5L1.5 8 0 9.5V12h3v-2.5L1.5 8 0 9.5V12zM15 12V9.5L13.5 11 12 9.5V12h3v-2.5L13.5 11 12 9.5V12zM21 12V9.5L19.5 11 18 9.5V12h3v-2.5L19.5 11 18 9.5V12z"/></svg>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- About Us Page -->
+        <section id="about-page" class="page">
+            <div class="bg-white rounded-xl shadow-lg p-6 md:p-8">
+                <h2 class="text-3xl font-bold text-gray-800 mb-6 text-center">О нас</h2>
+                <div class="prose max-w-none">
+                    <p class="text-gray-600">
+                        Привет! Меня зовут Натали Мишкис. Я автор книги «Ловушки разума: найти и обезвредить!» и создатель этого проекта. Моя миссия — помочь людям осознать и преодолеть психологические барьеры, которые мешают им быть счастливыми и успешными.
+                    </p>
+                    <p class="text-gray-600 mt-4">
+                        Идея этого сайта родилась из моего многолетнего опыта работы и исследований в области когнитивной и поведенческой психологии. Сегодня не секрет, что многие проблемы и неудачи в жизни связаны не с внешними обстоятельствами, а с внутренними «ловушками», в которые попадает наш разум.
+                    </p>
+                    <p class="text-gray-600 mt-4">
+                        На этом сайте я собрала самые эффективные методики и знания, чтобы вы могли самостоятельно пройти диагностику и получить первые шаги для работы над собой.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+<!-- Форма регистрации и отправки данных в таблицу -->
+
+<div id="registration-modal" class="modal fixed inset-0 hidden items-center justify-center bg-black bg-opacity-50">
+  <div class="bg-white rounded-xl shadow-lg p-6 md:p-8 w-full max-w-lg">
+    <h2 class="text-2xl font-bold text-gray-800 mb-4">Регистрация</h2>
+    <form id="registration-form" class="space-y-4">
+      
+      <!-- Имя -->
+      <input type="text" name="name" placeholder="Имя и фамилия"
+             class="w-full border border-gray-300 rounded-md p-2" required>
+
+      <!-- Email -->
+      <input type="email" name="email" placeholder="Ваш email"
+             class="w-full border border-gray-300 rounded-md p-2" required>
+
+      <!-- Как связаться -->
+      <select name="contactMethod" class="w-full border border-gray-300 rounded-md p-2" required>
+        <option value="" disabled selected>Как связаться</option>
+        <option value="Телефон">Телефон</option>
+        <option value="WhatsApp">WhatsApp</option>
+        <option value="Telegram">Telegram</option>
+        <option value="Instagram">Instagram</option>
+        <option value="Facebook">Facebook</option>
+      </select>
+
+      <!-- Номер или ник -->
+      <input type="text" name="contactValue" placeholder="Номер или ник"
+             class="w-full border border-gray-300 rounded-md p-2" required>
+
+      <!-- Онлайн тест -->
+      <label class="flex items-center space-x-2">
+        <input type="checkbox" name="doneTest" class="form-checkbox">
+        <span class="text-gray-700">Выполнили онлайн тест?</span>
+      </label>
+
+      <!-- Проблема -->
+      <textarea name="problem" placeholder="Кратко опишите суть проблемы"
+                class="w-full border border-gray-300 rounded-md p-2"></textarea>
+
+      <!-- Кнопки -->
+      <div class="flex justify-end space-x-4">
+        <button type="button" onclick="closeRegistrationModal()"
+                class="bg-gray-300 text-gray-800 font-semibold py-2 px-4 rounded-md hover:bg-gray-400 transition-colors duration-300">
+          Отмена
+        </button>
+        <button type="submit"
+                class="bg-blue-600 text-white font-semibold py-2 px-4 rounded-md hover:bg-blue-700 transition-colors duration-300">
+          Отправить
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  const form = document.getElementById("registration-form");
+
+form.addEventListener("submit", function(e) {
+  e.preventDefault();
+  
+  const formData = new FormData(this);
+  formData.append('doneTest', this.doneTest.checked ? "Да" : "Нет");
+
+  fetch("https://script.google.com/macros/s/AKfycbxjBlrjPyLXaBtv6sBQOlm5uv1FbTx7Wxq3gx6E1wjNenbqmHjbPt2D_Ot0_dgjltdhZQ/exec", {
+    method: "POST",
+    body: formData
+  })
+  .then(r => r.json())
+  .then(res => {
+    alert("Спасибо за регистрацию!");
+    closeRegistrationModal();
+    this.reset();
+  })
+  .catch(err => {
+    console.error(err);
+    alert("Ошибка при отправке.");
+  });
+});
+</script>
+
+  function closeRegistrationModal() {
+    document.getElementById("registration-modal").classList.add("hidden");
+  }
+</script>
+<!-- Конец Формы отправки данных в таблицу -->
+
+    <script>
+        function showPage(page) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById(page + '-page').classList.add('active');
+        }
+        function openRegistrationModal() {
+            document.getElementById('registration-modal').classList.add('open');
+        }
+        function closeRegistrationModal() {
+            document.getElementById('registration-modal').classList.remove('open');
+        }
+
+        // Универсальный обработчик → ведёт на short_test.html
+        document.querySelectorAll('[data-diagnose]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                window.location.href = './short_test.html';
+            });
+        });
+    </script>
+</body>
+</html>
